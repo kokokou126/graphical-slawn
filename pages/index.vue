@@ -2,8 +2,8 @@
   <div class="container">
     <div class="stack-area">
       <ul class="stack-list">
-        <li v-for="item in stack" :key="item" class="stack-item">
-          {{ item }}
+        <li v-for="item in stack" :key="item" :class="item.class" class="stack-item">
+          {{ item.value }}
         </li>
       </ul>
     </div>
@@ -17,6 +17,9 @@
 
 <script>
 import Slawn from 'slawn'
+import operators from '@/node_modules/slawn/dist/operators.json'
+
+const operatorAliases = operators.map(v => v.alias).flat()
 
 const slawn = new Slawn()
 slawn.eval(['hello', '!print'])
@@ -29,10 +32,26 @@ export default {
       stack: []
     }
   },
+  watch: {
+    expression () {
+      if (operatorAliases.includes(this.expression)) {
+        const arg = operators.filter(v => v.alias.includes(this.expression))[0].arg
+        Array(arg).fill(0).forEach((_, i) => {
+          const item = this.stack[this.stack.length - 1 - i]
+          item.class['auto-highlight'] = true
+        })
+      } else {
+        this.stack.forEach((_, i) => {
+          const item = this.stack[i]
+          item.class['auto-highlight'] = false
+        })
+      }
+    }
+  },
   methods: {
     eval () {
       slawn.eval([parseInt(this.expression) || this.expression])
-      this.stack = [...slawn.stack].reverse()
+      this.stack = [...slawn.stack].map(v => ({ class: {}, value: v })).reverse()
       this.expression = ''
     }
   }
@@ -49,6 +68,12 @@ export default {
   to
     opacity 1
     transform translateY(0)
+
+@keyframes fadeIn
+  from
+    opacity 0
+  to
+    opacity 1
 
 body
   font-size: 1.6rem
@@ -108,4 +133,8 @@ html
   font-family Inconsolata, monospace
   font-size 1.8rem
   outline none
+
+.auto-highlight
+  animation-name fadeIn
+  background-color palegreen
 </style>
