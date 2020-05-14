@@ -148,7 +148,7 @@ html
 .stack-area
   bottom 0
   grid-area stack
-  height max-content
+  height 50vh
   left 0
   margin auto
   overflow auto
