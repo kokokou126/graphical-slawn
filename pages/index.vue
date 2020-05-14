@@ -9,7 +9,16 @@
     </div>
     <div class="input-area">
       <div>
-        <input v-model="expression" autofocus class="input-expression" type="text" @keyup.enter="eval">
+        <input
+          id="input-expression"
+          v-model="expression"
+          autocomplete="off"
+          autofocus
+          type="text"
+          @keyup.enter="eval"
+          @keyup.up="previewHistory"
+          @keyup.down="nextHistory"
+        >
       </div>
     </div>
   </div>
@@ -29,6 +38,9 @@ export default {
   data () {
     return {
       expression: '',
+      expressionNow: '',
+      history: [],
+      historyReviewAt: -1,
       stack: []
     }
   },
@@ -52,7 +64,36 @@ export default {
     eval () {
       slawn.eval([parseInt(this.expression) || this.expression])
       this.stack = [...slawn.stack].map(v => ({ class: {}, value: v })).reverse()
+      this.history.push(this.expression)
+      this.historyReviewAt = -1
       this.expression = ''
+      this.expressionNow = ''
+    },
+    previewHistory () {
+      if (this.historyReviewAt === -1) {
+        this.expressionNow = this.expression
+      }
+      if (this.historyReviewAt + 1 <= this.history.length - 1) {
+        this.historyReviewAt++
+        this.expression = this.history[this.history.length - 1 - this.historyReviewAt]
+        this.caretToEnd()
+      }
+    },
+    nextHistory () {
+      if (this.historyReviewAt - 1 >= 0) {
+        this.historyReviewAt--
+        this.expression = this.history[this.history.length - 1 - this.historyReviewAt]
+        this.caretToEnd()
+      } else if (this.historyReviewAt === 0) {
+        this.expression = this.expressionNow
+        this.historyReviewAt = -1
+      }
+    },
+    caretToEnd () {
+      const inputExpression = document.getElementById('input-expression')
+      inputExpression.setSelectionRange(
+        ...Array(2).fill(inputExpression.textContent.length)
+      )
     }
   }
 }
@@ -127,7 +168,7 @@ html
   list-style none
   padding-left 0
 
-.input-expression
+#input-expression
   border none
   border-bottom 1px solid
   font-family Inconsolata, monospace
