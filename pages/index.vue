@@ -2,7 +2,7 @@
   <div class="container">
     <div class="stack-area">
       <ul class="stack-list">
-        <li v-for="item in stack" :key="item" :class="item.class" class="stack-item">
+        <li v-for="(item, index) in stack" :key="index" :class="item.class" class="stack-item">
           {{ item.value }}
         </li>
       </ul>
