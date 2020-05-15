@@ -217,7 +217,7 @@ html
 
 .auto-highlight
   animation-name fadeIn
-  background-color palegreen
+  background-color #98fb98
 
 .autocomplete-area
   grid-area autocomplete
