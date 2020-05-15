@@ -1,11 +1,13 @@
 <template>
   <div class="container">
     <div class="stack-area">
-      <ul class="stack-list">
-        <li v-for="(item, index) in stack" :key="index" :class="item.class" class="stack-item">
-          {{ item.value }}
-        </li>
-      </ul>
+      <div>
+        <ul class="stack-list">
+          <li v-for="(item, index) in stack" :key="index" :class="item.class" class="stack-item">
+            {{ item.value }}
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="input-area">
       <div>
@@ -146,7 +148,7 @@ html
   width 100%
 
 .stack-area
-  bottom 0
+    bottom 0
   grid-area stack
   height 50vh
   left 0
