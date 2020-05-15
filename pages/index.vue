@@ -23,6 +23,17 @@
         >
       </div>
     </div>
+    <div class="autocomplete-area">
+      <div>
+        <ul v-if="isShowAutocomplete" class="autocomplete-list">
+          <li v-for="(item, index) in autocompleteItems" :key="index" class="autocomplete-item">
+            <button @click="completeExpression(item)">
+              {{ item }}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -44,6 +55,28 @@ export default {
       history: [],
       historyReviewAt: -1,
       stack: []
+    }
+  },
+  computed: {
+    autocompleteItems: {
+      get () {
+        const expression = this.expression
+          .replace(/\\/g, '\\\\')
+          .replace(/\$/g, '\\$')
+          .replace(/\(/g, '\\(')
+          .replace(/\)/g, '\\)')
+          .replace(/\*/g, '\\*')
+          .replace(/\+/g, '\\+')
+          .replace(/\//g, '\\/')
+          .replace(/\[/g, '\\[')
+          .replace(/\^/g, '\\^')
+        return operatorAliases.filter(v => RegExp(`^${expression}`).test(v))
+      }
+    },
+    isShowAutocomplete: {
+      get () {
+        return this.expression !== '' && this.autocompleteItems.length !== 0
+      }
     }
   },
   watch: {
@@ -96,6 +129,10 @@ export default {
       inputExpression.setSelectionRange(
         ...Array(2).fill(inputExpression.textContent.length)
       )
+    },
+    completeExpression (expression) {
+      this.expression = expression
+      document.getElementById('input-expression').focus()
     }
   }
 }
@@ -131,8 +168,8 @@ html
   grid-template-columns 1fr max-content 1fr
   grid-template-rows 50% 50%
   grid-template-areas \
-    ". stack ." \
-    ". input ."
+    ". stack autocomplete" \
+    ". input autocomplete"
   height 100vh
   margin 0
   width 100vw
@@ -148,15 +185,16 @@ html
   width 100%
 
 .stack-area
-    bottom 0
   grid-area stack
-  height 50vh
-  left 0
-  margin auto
-  overflow auto
-  right 0
-  top 0
-  width 100%
+  position relative
+  div
+    bottom 0
+    height 50vh
+    left 0
+    margin auto
+    overflow auto
+    position absolute
+    right 0
 
 .stack-item
   animation-duration .5s
@@ -180,4 +218,41 @@ html
 .auto-highlight
   animation-name fadeIn
   background-color palegreen
+
+.autocomplete-area
+  grid-area autocomplete
+  overflow auto
+  position relative
+  div
+    bottom 0
+    height min-content
+    left 0
+    margin 10px auto
+    position absolute
+    right 0
+    top 0
+    width min-content
+
+.autocomplete-list
+  list-style none
+  padding-left 0
+
+.autocomplete-item
+  border 1px solid #dddddd
+  transition .1s
+  &:hover
+    background-color #add8e6
+  &:active
+    background-color #86c5da
+  button
+    appearance none
+    background-color transparent
+    border none
+    cursor pointer
+    font-family Inconsolata, monospace
+    font-size 1.8rem
+    height 100%
+    outline none
+    padding 10px
+    width 100%
 </style>
